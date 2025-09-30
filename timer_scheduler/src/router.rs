@@ -1,8 +1,7 @@
-use hyper::{Body, Request, Response, Method, StatusCode};
+use hyper::{Body, Method, Request, Response, StatusCode};
 use tracing::info;
 
-mod auth;
-use auth::{init_db, register_user, login_user};
+use crate::groups::auth::{init_db, register_user, login_user};
 
 pub async fn router(req: Request<Body>) -> Result<Response<Body>, hyper::http::Error> {
     let method = req.method().clone();

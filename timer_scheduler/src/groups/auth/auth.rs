@@ -4,7 +4,7 @@ use hyper::body::to_bytes;
 use serde::Deserialize;
 use tracing::info;
 use argon2::{Argon2, password_hash::{SaltString, PasswordHasher, PasswordVerifier, PasswordHash} };
-use rand_core::OsRng;
+use uuid::Uuid;
 
 #[derive(Deserialize)]
 pub struct AuthRequest {
@@ -38,7 +38,10 @@ pub async fn register_user(conn: &Connection, req: Request<Body>) -> Response<Bo
     };
 
     // Hash password
-    let salt = SaltString::generate(&mut OsRng);
+    // Generate salt from a UUID
+    let salt_string = Uuid::new_v4().to_string();          // e.g., "550e8400-e29b-41d4-a716-446655440000"
+    let salt = SaltString::b64_encode(salt_string.as_bytes())
+        .expect("Failed to create salt");
     let password_hash = Argon2::default()
         .hash_password(auth.password.as_bytes(), &salt)
         .unwrap()
