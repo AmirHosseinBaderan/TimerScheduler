@@ -1,38 +1,26 @@
 use hyper::{Body, Request, Response, Method, StatusCode};
 use tracing::info;
 
-// Main router function
+mod auth;
+use auth::{init_db, register_user, login_user};
+
 pub async fn router(req: Request<Body>) -> Result<Response<Body>, hyper::http::Error> {
-    info!("Incoming request: {} {}", req.method(), req.uri());
+    let method = req.method().clone();
+    let path = req.uri().path().to_string();
+    info!("Incoming request: {} {}", method, path);
 
-    let response = match (req.method(), req.uri().path()) {
-        // Timers route group
-        (&Method::GET, "/timers") => timers_list().await,
-        (&Method::POST, "/push") => timers_create().await,
-        (&Method::DELETE, "/cancel") => timers_delete().await,
+    // Initialize DB (reuse in-memory or real DB in production)
+    let conn = init_db();
 
-        // Default 404
+    let response = match (method, path.as_str()) {
+        (Method::POST, "/auth/register") => register_user(&conn, req).await,
+        (Method::POST, "/auth/login") => login_user(&conn, req).await,
+
         _ => Response::builder()
             .status(StatusCode::NOT_FOUND)
-            .body(Body::empty())
+            .body(Body::from(format!("No handler for {}", path)))
             .unwrap(),
     };
 
     Ok(response)
-}
-
-// Example timer handlers
-async fn timers_list() -> Response<Body> {
-    info!("Listing timers");
-    Response::new(Body::from("Timers list"))
-}
-
-async fn timers_create() -> Response<Body> {
-    info!("Creating a timer");
-    Response::new(Body::from("Timer created"))
-}
-
-async fn timers_delete() -> Response<Body> {
-    info!("Deleting a timer");
-    Response::new(Body::from("Timer deleted"))
 }

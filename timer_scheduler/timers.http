@@ -1,16 +1,17 @@
-
-
-### Create a new timer
-POST http://127.0.0.1:3000/push
+### Register
+POST http://127.0.0.1:3000/auth/register
 Content-Type: application/json
 
 {
-  "name": "Test Timer",
-  "duration_secs": 5
+  "username": "admin",
+  "password": "123456"
 }
 
-### List all timers
-GET http://127.0.0.1:3000/timers
+### Login
+POST http://127.0.0.1:3000/auth/login
+Content-Type: application/json
 
-### Delete a timer
-DELETE http://127.0.0.1:3000/timers
+{
+"username": "admin",
+"password": "123456"
+}
