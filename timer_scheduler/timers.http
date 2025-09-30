@@ -1,0 +1,16 @@
+
+
+### Create a new timer
+POST http://127.0.0.1:3000/push
+Content-Type: application/json
+
+{
+  "name": "Test Timer",
+  "duration_secs": 5
+}
+
+### List all timers
+GET http://127.0.0.1:3000/timers
+
+### Delete a timer
+DELETE http://127.0.0.1:3000/timers

@@ -1,30 +1,28 @@
-use axum::{Router, routing::get};
+use std::convert::Infallible;
 use std::net::SocketAddr;
-use tracing::{info};
+use hyper::{Body, Request, Response, Server};
+use hyper::service::{make_service_fn, service_fn};
+use tracing::{info, error};
 use tracing_subscriber;
-use hyper::Server;
+
+mod router;
 
 #[tokio::main]
 async fn main() {
+    // Initialize tracing subscriber (pretty console logging)
     tracing_subscriber::fmt::init();
-    info!("Starting Timer Scheduler server...");
 
-    run_server().await;
-}
+    let addr = SocketAddr::from(([127, 0, 0, 1], 3000));
+    info!("🚀 Server starting on http://{}", addr);
 
-async fn run_server() {
-    let app = Router::new()
-        .route("/", get(|| async {
-            info!("Handling / request");
-            "Hello, Timer Scheduler!"
-        }));
+    let make_svc = make_service_fn(|_conn| async {
+        Ok::<_, Infallible>(service_fn(router::router))
+    });
 
-    let addr = SocketAddr::from(([0, 0, 0, 0], 8080));
-    info!("🚀 Server running at http://{}", addr);
+    let server = Server::bind(&addr).serve(make_svc);
 
-    // Use hyper::Server to run the app
-    Server::bind(&addr)
-        .serve(app.into_make_service())
-        .await
-        .unwrap();
+    // Run the server forever
+    if let Err(e) = server.await {
+        error!("server error: {}", e);
+    }
 }
