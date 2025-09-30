@@ -1,0 +1,21 @@
+# Rust/Cargo
+target/
+**/*.rs.bk
+**/*.rs.old
+
+# Ignore IDE/editor files
+.vscode/
+.idea/
+*.swp
+*.swo
+*.sublime-workspace
+*.sublime-project
+
+# MacOS
+.DS_Store
+
+# Logs
+*.log
+
+# Environment files
+.env
