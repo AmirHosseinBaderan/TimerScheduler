@@ -1,1 +1,0 @@
-/home/amirhossein/projects/me/TimerScheduler/timer_scheduler/target/debug/timer_scheduler: /home/amirhossein/projects/me/TimerScheduler/timer_scheduler/src/main.rs /home/amirhossein/projects/me/TimerScheduler/timer_scheduler/src/router.rs
