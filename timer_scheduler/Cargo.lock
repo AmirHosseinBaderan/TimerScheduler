@@ -2374,6 +2374,7 @@ dependencies = [
  "chrono",
  "env_logger",
  "jsonwebtoken",
+ "log",
  "rand 0.8.5",
  "serde",
  "serde_json",

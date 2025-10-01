@@ -1,9 +1,10 @@
-use actix::prelude::*;
 use actix_web::{web, HttpRequest, HttpResponse, Error};
 use actix_web_actors::ws;
 use serde::Deserialize;
 use sqlx::Pool;
 use sqlx::Sqlite;
+use log::{info, error};
+use actix::prelude::*;
 
 #[derive(Deserialize)]
 pub struct TimerMessage {
@@ -27,21 +28,25 @@ impl StreamHandler<Result<ws::Message, ws::ProtocolError>> for TimerWs {
         match msg {
             Ok(ws::Message::Text(text)) => {
                 if let Ok(timer) = serde_json::from_str::<TimerMessage>(&text) {
-                    println!("Received timer from app {}: key={}, duration={}", self.app_name, timer.key, timer.duration_secs);
+                    info!(
+                        "Received timer from app {}: key={}, duration={}",
+                        self.app_name, timer.key, timer.duration_secs
+                    );
 
-                    // You can now store this timer in DB or process it
-                    // Example: ctx.text("Timer received");
+                    // Respond to client
                     ctx.text(format!("Timer {} for {} seconds received", timer.key, timer.duration_secs));
                 } else {
                     ctx.text("Invalid timer format");
+                    error!("Failed to parse timer JSON from app {}", self.app_name);
                 }
             }
             Ok(ws::Message::Ping(msg)) => ctx.pong(&msg),
             Ok(ws::Message::Pong(_)) => (),
             Ok(ws::Message::Close(reason)) => {
-                println!("WebSocket closed for app {}: {:?}", self.app_name, reason);
+                info!("WebSocket closed for app {}: {:?}", self.app_name, reason);
                 ctx.stop();
             }
+            Err(e) => error!("WebSocket error for app {}: {:?}", self.app_name, e),
             _ => (),
         }
     }
@@ -60,7 +65,7 @@ pub async fn ws_index(
         "unknown".to_string()
     };
 
-    println!("New WS connection for app: {}", app_name);
+    info!("New WS connection for app: {}", app_name);
 
     ws::start(TimerWs { app_name, db_pool: db_pool.get_ref().clone() }, &req, stream)
 }
