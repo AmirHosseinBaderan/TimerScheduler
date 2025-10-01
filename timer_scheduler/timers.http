@@ -24,3 +24,17 @@ Content-Type: application/json
   "user_name": "unknown",
   "password": "1234"
 }
+
+### Create an app
+POST http://127.0.0.1:8080/app
+Content-Type: application/json
+
+{
+  "name": "my-app"
+}
+
+### Delete an app by id
+DELETE http://127.0.0.1:8080/app/1
+
+### Get list of apps
+GET http://127.0.0.1:8080/apps
