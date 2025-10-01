@@ -1,7 +1,7 @@
 use actix_web::{post, web, HttpResponse, Responder};
 use serde::Deserialize;
 use sqlx::Row;
-use crate::auth::db::DbPool;
+use crate::auth::{db::DbPool, token::create_token};
 
 #[derive(Deserialize)]
 pub struct LoginRequest {
@@ -23,7 +23,11 @@ pub async fn login(
         Ok(Some(record)) => {
             let stored_password: String = record.get("password");
             if stored_password == form.password {
-                HttpResponse::Ok().body("✅ Login successful")
+                let token = create_token(&form.user_name);
+                HttpResponse::Ok().json(serde_json::json!({
+                    "message": "✅ Login successful",
+                    "token": token
+                }))
             } else {
                 HttpResponse::Unauthorized().body("❌ Invalid password")
             }
