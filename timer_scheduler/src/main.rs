@@ -1,5 +1,6 @@
 mod app;
 mod auth;
+mod ws;
 
 use actix_web::middleware::Logger;
 use actix_web::{App, HttpServer, web};
