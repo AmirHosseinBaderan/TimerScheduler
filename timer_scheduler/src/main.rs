@@ -1,40 +1,22 @@
-#[macro_use]
-extern crate serde;
-extern crate diesel_migrations;
-#[macro_use]
-extern crate diesel;
+mod auth;
 
+use actix_web::{App, HttpServer, web};
+use actix_web::middleware::Logger;
+use auth::{db, routes};
 
-use actix_web::middleware::{DefaultHeaders, Logger};
-use actix_web::{App, HttpServer};
-use bastion::prelude::*;
-use dotenv::dotenv;
-use uuid::Uuid;
+#[actix_web::main]
+async fn main() -> std::io::Result<()> {
+    env_logger::init_from_env(env_logger::Env::new().default_filter_or("info"));
 
-#[actix_rt::main]
-async fn web_main() -> Result<(), std::io::Error> {
-    HttpServer::new(|| {
+    let pool = db::init_db().await;
+
+    HttpServer::new(move || {
         App::new()
-            .data(Clients::new())
-            .wrap(DefaultHeaders::new().header("x-request-id", Uuid::new_v4().to_string()))
-            .wrap(Logger::new("IP:%a DATETIME:%t REQUEST:\"%r\" STATUS: %s DURATION:%D X-REQUEST-ID:%{x-request-id}o"))
-            .wrap(crate::todo_api_web::middleware::Authentication)
-            .configure(app_routes)
+            .wrap(Logger::default())
+            .app_data(web::Data::new(pool.clone()))
+            .service(routes::login) // POST /login
     })
-        .workers(num_cpus::get() + 2)
-        .bind("0.0.0.0:4000")
-        .unwrap()
-        .run()
-        .await
-}
-
-#[fort::root]
-async fn main(_: BastionContext) -> Result<(), ()> {
-    std::env::set_var("RUST_LOG", "actix_web=debug");
-
-    dotenv().ok();
-
-    let _ = web_main();
-
-    Ok(())
+    .bind(("127.0.0.1", 8080))?
+    .run()
+    .await
 }

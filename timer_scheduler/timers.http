@@ -1,17 +1,26 @@
-### Register
-POST http://127.0.0.1:3000/auth/register
+### Test login with default admin
+POST http://127.0.0.1:8080/login
 Content-Type: application/json
 
 {
-  "username": "admin",
-  "password": "123456"
+  "user_name": "admin",
+  "password": "admin"
 }
 
-### Login
-POST http://127.0.0.1:3000/auth/login
+### Test login with wrong password
+POST http://127.0.0.1:8080/login
 Content-Type: application/json
 
 {
-"username": "admin",
-"password": "123456"
+  "user_name": "admin",
+  "password": "wrongpass"
+}
+
+### Test login with non-existing user
+POST http://127.0.0.1:8080/login
+Content-Type: application/json
+
+{
+  "user_name": "unknown",
+  "password": "1234"
 }
