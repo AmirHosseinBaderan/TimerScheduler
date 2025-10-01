@@ -5,6 +5,7 @@ edition = "2024"
 
 [dependencies]
 # Web server
+actix = "0.13"
 actix-web = "4"
 actix-web-actors = "4"   # <-- WebSocket support
 tokio = { version = "1", features = ["full"] }

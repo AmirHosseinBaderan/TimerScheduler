@@ -6,6 +6,7 @@ use actix_web::middleware::Logger;
 use actix_web::{App, HttpServer, web};
 use app::{db as app_db, routes as app_routes};
 use auth::{db, routes};
+use crate::ws::ws_index;
 
 #[actix_web::main]
 async fn main() -> std::io::Result<()> {
@@ -27,6 +28,7 @@ async fn main() -> std::io::Result<()> {
             .service(app_routes::create)
             .service(app_routes::delete)
             .service(app_routes::get_list)
+            .route("/ws", web::get().to(ws_index))
     })
     .bind(("127.0.0.1", 8080))?
     .run()
